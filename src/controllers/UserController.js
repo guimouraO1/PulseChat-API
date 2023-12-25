@@ -81,7 +81,7 @@ module.exports = {
   
     let email = req.body.email;
     let password = req.body.password;
-  
+    
     try {
       let user = await UserService.login(email, password);
   

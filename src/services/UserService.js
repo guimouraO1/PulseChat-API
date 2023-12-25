@@ -85,7 +85,6 @@ module.exports = {
         [email, password],
         (error, results) => {
           if (error) {
-            
             reject(error);
             return;
           }
