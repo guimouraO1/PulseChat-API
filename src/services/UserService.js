@@ -1,4 +1,5 @@
 const db = require("../db");
+const jwt = require("jsonwebtoken");
 
 module.exports = {
   findAll: () => {
@@ -43,8 +44,24 @@ module.exports = {
             reject(error);
             return;
           }
-
-          accept(results.id);
+          // Modificação na consulta para selecionar email e senha
+          db.query(
+            "SELECT user.id, user.email FROM user WHERE email = ? AND password = ?",
+            [email, password],
+            (error, results) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              if (results.length > 0) {
+                let payload = { subject: results[0] };
+                let token = jwt.sign(payload, "secretKey");
+                accept({ token });
+              } else {
+                accept(false);
+              }
+            }
+          );
         }
       );
     });
@@ -89,7 +106,9 @@ module.exports = {
             return;
           }
           if (results.length > 0) {
-            accept(results[0]);
+            let payload = { subject: results[0] };
+            let token = jwt.sign(payload, "secretKey");
+            accept({ token });
           } else {
             accept(false);
           }
