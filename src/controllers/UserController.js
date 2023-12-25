@@ -77,27 +77,25 @@ module.exports = {
 
   login: async (req, res) => {
     let json = { error: "", result: {} };
-    let loggedIn = { loggedIn: false };
-  
+
     let email = req.body.email;
     let password = req.body.password;
-    
+    let loggedIn = { loggedIn: false };
+
     try {
       let user = await UserService.login(email, password);
-  
+
       if (user) {
         user.loggedIn = true;
         json.result = user;
       } else {
         json.result = loggedIn;
       }
-  
       res.json(json);
-      
+
     } catch (error) {
-      console.error("Error during login:", error);
       json.error = "An error occurred during login";
       res.status(500).json(json);
     }
-    }
+  },
 };
