@@ -1,5 +1,6 @@
 const UserService = require("../services/UserService");
 const userService = require("../services/UserService");
+const bcrypt = require("bcryptjs");
 
 module.exports = {
   findAll: async (req, res) => {
@@ -42,16 +43,33 @@ module.exports = {
 
       let email = req.body.email;
       let password = req.body.password;
+      let confirmPassword = req.body.confirmPassword;
 
-      if (email && password) {
-        let user = await UserService.register(email, password);
-        json.result = user;
-      } else {
-        json.error = "Fields not filled in";
+      if (!email) {
+        return res.status(422).json({ msg: "O email é obrigatório" });
       }
+      if (!password) {
+        return res.status(422).json({ msg: "O password é obrigatório" });
+      }
+      if (password !== confirmPassword) {
+        return res.status(422).json({ msg: "As senhas não conferem" });
+      }
+
+      const userExists = await UserService.findOne(email);
+      if (userExists) {
+        return res
+          .status(422)
+          .json({ msg: "Email já cadastrado, tente outro." });
+      }
+
+      const salt = await bcrypt.genSalt(12);
+      const passwordHash = await bcrypt.hash(password, salt);
+
+      let user = await UserService.register(email, passwordHash);
+      json.result = user;
+
       res.json(json);
-    } catch (error) {
-    }
+    } catch (error) {}
   },
 
   update: async (req, res) => {
@@ -83,7 +101,7 @@ module.exports = {
       let json = { error: "", result: {} };
 
       await UserService.delete(req.params.id);
-      
+
       res.json(json);
     } catch (error) {
       res.status(500).json({ error: "Internal Server Error", result: {} });
@@ -96,20 +114,36 @@ module.exports = {
     let email = req.body.email;
     let password = req.body.password;
     let loggedIn = { loggedIn: false };
+    // Validations
+    if (!email) {
+      return res.status(422).json({ msg: "O email é obrigatório" });
+    }
+    if (!password) {
+      return res.status(422).json({ msg: "O password é obrigatório" });
+    }
+
+    const userExists = await UserService.findOne(email);
+    if (!userExists) {
+      return res.status(404).json({ msg: "Usuário não encontrado!" });
+    }
+
+    const checkPassword = await bcrypt.compare(password, userExists.password);
+    if (!checkPassword) {
+      return res.status(422).json({ msg: "Senha inválida!" });
+    }
 
     try {
-      let user = await UserService.login(email, password);
+      let user = await UserService.login(email, userExists.password);
 
-      if (user) {
-        // user.loggedIn = true;
-        json.result = user;
-      } else {
-        json.result = loggedIn;
-      }
+      user.user.loggedIn = true;
+      json.result = user;
       res.json(json);
     } catch (error) {
       json.error = "An error occurred during login";
       res.status(500).json(json);
     }
   },
+
+
+
 };
