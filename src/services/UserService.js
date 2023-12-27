@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config({ path: "variaveis.env" });
 
 module.exports = {
+  
   findAll: () => {
     return new Promise((accept, reject) => {
       db.query("SELECT * FROM user", (error, results) => {
@@ -15,11 +16,11 @@ module.exports = {
     });
   },
 
-  findOne: (email) => {
+  getUserById: (id) => {
     return new Promise((accept, reject) => {
       db.query(
-        "SELECT * FROM user WHERE email = ?",
-        [email],
+        "SELECT user.id, user.email FROM user WHERE id = ?",
+        [id],
         (error, results) => {
           if (error) {
             reject(error);
@@ -28,17 +29,17 @@ module.exports = {
           if (results.length > 0) {
             accept(results[0]);
           } else {
-            accept(false);
+            reject(false);
           }
         }
       );
     });
   },
 
-  findOneWpass: (email) => {
+  findUserByEmail: (email) => {
     return new Promise((accept, reject) => {
       db.query(
-        "SELECT user.id, user.email FROM user WHERE email = ?",
+        "SELECT * FROM user WHERE email = ?",
         [email],
         (error, results) => {
           if (error) {
@@ -65,32 +66,13 @@ module.exports = {
             reject(error);
             return;
           }
-          // Modificação na consulta para selecionar email e senha
-          db.query(
-            "SELECT user.id, user.email FROM user WHERE email = ? AND password = ?",
-            [email, password],
-            (error, results) => {
-              if (error) {
-                reject(error);
-                return;
-              }
-              if (results.length > 0) {
-                let payload = { subject: results[0] };
-                let token = jwt.sign(
-                  payload,
-                  "5+P/|j99rJ]\4H9NMu^QhRcJPP8B.+Q"
-                );
-                accept({ token });
-              } else {
-                accept(false);
-              }
-            }
-          );
+          
+          accept({ register: true });
         }
       );
     });
   },
-
+  
   update: (id, email, password) => {
     return new Promise((accept, reject) => {
       db.query(
@@ -120,7 +102,7 @@ module.exports = {
   },
 
   login: (email, password) => {
-    const secret = process.env.SECRET;
+    const SECRET = process.env.SECRET;
 
     return new Promise((accept, reject) => {
       db.query(
@@ -132,25 +114,15 @@ module.exports = {
             return;
           }
           if (results.length > 0) {
-            let payload = { subject: results[0] };
-            let token = jwt.sign(payload, secret);
+            let payload = { userId: results[0].id };
+            let token = jwt.sign(payload, SECRET, { expiresIn: '1h' });
             accept({ user: results[0], token });
           } else {
-            accept(false);
+            reject();
           }
         }
       );
     });
   },
 
-  token(token) {
-    const secret = process.env.SECRET;
-    const jwt = require("jsonwebtoken");
-    try {
-      const decoded = jwt.verify(token, secret);
-      return decoded;
-    } catch (err) {
-      console.error("Erro ao decodificar o JWT:", err.message);
-    }
-  },
 };

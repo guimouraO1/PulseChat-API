@@ -3,6 +3,7 @@ const userService = require("../services/UserService");
 const bcrypt = require("bcryptjs");
 
 module.exports = {
+  
   findAll: async (req, res) => {
     try {
       let json = { error: "", result: [] };
@@ -21,26 +22,32 @@ module.exports = {
     }
   },
 
-  findOne: async (req, res) => {
+  getUserById: async (req, res) => {
     try {
-      let json = { error: "", result: {} };
+      let user = await UserService.getUserById(req.userId);
 
+      res.json(user);
+    } catch (error) {
+      res.status(500).json({ error: "Internal Server Error", result: {} });
+    }
+  },
+
+  findUserByEmail: async (req, res) => {
+    try {
       let email = req.body.email;
-      let user = await UserService.findOne(email);
+      let user = await UserService.findUserByEmail(email);
 
       if (user) {
-        json.result = user;
+        res.json(user);
       }
-      res.json(json);
     } catch (error) {
+      9;
       res.status(500).json({ error: "Internal Server Error", result: {} });
     }
   },
 
   register: async (req, res) => {
     try {
-      let json = { error: "", result: {} };
-
       let email = req.body.email;
       let password = req.body.password;
       let confirmPassword = req.body.confirmPassword;
@@ -55,7 +62,7 @@ module.exports = {
         return res.status(422).json({ msg: "As senhas não conferem" });
       }
 
-      const userExists = await UserService.findOne(email);
+      const userExists = await UserService.findUserByEmail(email);
       if (userExists) {
         return res
           .status(422)
@@ -66,55 +73,51 @@ module.exports = {
       const passwordHash = await bcrypt.hash(password, salt);
 
       let user = await UserService.register(email, passwordHash);
-      json.result = user;
 
-      res.json(json);
+      res.json(user);
     } catch (error) {}
   },
 
   update: async (req, res) => {
     try {
-      let json = { error: "", result: {} };
-
-      let id = req.params.id;
+      let id = req.userId;
       let email = req.body.email;
       let password = req.body.password;
 
       if (id && email && password) {
         await UserService.update(id, email, password);
-        json.result = {
-          id,
-          email,
-          password,
+        result = {
+          update: true,
         };
       } else {
-        json.error = "Fields not filled in";
+        result = {
+          update: false,
+        };
       }
-      res.json(json);
+      res.json(result);
     } catch (error) {
-      res.status(500).json({ error: "Internal Server Error", result: {} });
+      res.status(500).json({ error: "Internal Server Error" });
     }
   },
 
   delete: async (req, res) => {
     try {
-      let json = { error: "", result: {} };
-
       await UserService.delete(req.params.id);
 
-      res.json(json);
+      res.json({ userId: req.params.id, delete: true });
     } catch (error) {
-      res.status(500).json({ error: "Internal Server Error", result: {} });
+      res.status(500).json({
+        error: "Internal Server Error",
+        result: { userId: req.params.id, delete: false },
+      });
     }
   },
 
   login: async (req, res) => {
-    let json = { error: "", result: {} };
 
     let email = req.body.email;
     let password = req.body.password;
-    let loggedIn = { loggedIn: false };
-    // Validations
+
     if (!email) {
       return res.status(422).json({ msg: "O email é obrigatório" });
     }
@@ -122,7 +125,7 @@ module.exports = {
       return res.status(422).json({ msg: "O password é obrigatório" });
     }
 
-    const userExists = await UserService.findOne(email);
+    const userExists = await UserService.findUserByEmail(email);
     if (!userExists) {
       return res.status(404).json({ msg: "Usuário não encontrado!" });
     }
@@ -135,15 +138,10 @@ module.exports = {
     try {
       let user = await UserService.login(email, userExists.password);
 
-      user.user.loggedIn = true;
-      json.result = user;
-      res.json(json);
+      res.json(user);
     } catch (error) {
       json.error = "An error occurred during login";
       res.status(500).json(json);
     }
   },
-
-
-
 };
