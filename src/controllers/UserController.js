@@ -4,24 +4,6 @@ const bcrypt = require("bcryptjs");
 
 module.exports = {
   
-  findAll: async (req, res) => {
-    try {
-      let json = { error: "", result: [] };
-
-      let users = await userService.findAll();
-
-      for (let i in users) {
-        json.result.push({
-          id: users[i].id,
-          email: users[i].email,
-        });
-      }
-      res.json(json);
-    } catch (error) {
-      res.status(500).json({ error: "Internal Server Error", result: [] });
-    }
-  },
-
   getUserById: async (req, res) => {
     try {
       let user = await UserService.getUserById(req.userId);
@@ -32,10 +14,10 @@ module.exports = {
     }
   },
 
-  findUserByEmail: async (req, res) => {
+  getUserByEmail: async (req, res) => {
     try {
       let email = req.body.email;
-      let user = await UserService.findUserByEmail(email);
+      let user = await UserService.getUserByEmail(email);
 
       if (user) {
         res.json(user);
@@ -62,7 +44,7 @@ module.exports = {
         return res.status(422).json({ msg: "As senhas não conferem" });
       }
 
-      const userExists = await UserService.findUserByEmail(email);
+      const userExists = await UserService.getUserByEmail(email);
       if (userExists) {
         return res
           .status(422)
@@ -81,22 +63,19 @@ module.exports = {
   update: async (req, res) => {
     try {
       let id = req.userId;
-      let email = req.body.email;
-      let password = req.body.password;
+      let first_name = req.body.first_name;
+      let last_name = req.body.last_name;
+      let admin = req.body.admin;
 
-      if (id && email && password) {
-        await UserService.update(id, email, password);
+      if (id) {
+        await UserService.update(id, first_name, last_name, admin);
         result = {
           update: true,
-        };
-      } else {
-        result = {
-          update: false,
         };
       }
       res.json(result);
     } catch (error) {
-      res.status(500).json({ error: "Internal Server Error" });
+      error.status(404).json({ msg: "Id not found" });
     }
   },
 
@@ -114,7 +93,6 @@ module.exports = {
   },
 
   login: async (req, res) => {
-
     let email = req.body.email;
     let password = req.body.password;
 
@@ -125,7 +103,7 @@ module.exports = {
       return res.status(422).json({ msg: "O password é obrigatório" });
     }
 
-    const userExists = await UserService.findUserByEmail(email);
+    const userExists = await UserService.getUserByEmail(email);
     if (!userExists) {
       return res.status(404).json({ msg: "Usuário não encontrado!" });
     }
@@ -143,5 +121,9 @@ module.exports = {
       json.error = "An error occurred during login";
       res.status(500).json(json);
     }
+  },
+
+  auth: async (req, res) => {
+    res.json({ user: req.userId });
   },
 };

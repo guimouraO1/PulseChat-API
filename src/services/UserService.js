@@ -4,22 +4,10 @@ require("dotenv").config({ path: "variaveis.env" });
 
 module.exports = {
   
-  findAll: () => {
-    return new Promise((accept, reject) => {
-      db.query("SELECT * FROM user", (error, results) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-        accept(results);
-      });
-    });
-  },
-
   getUserById: (id) => {
     return new Promise((accept, reject) => {
       db.query(
-        "SELECT user.id, user.email FROM user WHERE id = ?",
+        "SELECT user.email, user.first_name, user.last_name, IF(user.admin, 'true', 'false') AS admin FROM user WHERE id = ?",
         [id],
         (error, results) => {
           if (error) {
@@ -36,7 +24,7 @@ module.exports = {
     });
   },
 
-  findUserByEmail: (email) => {
+  getUserByEmail: (email) => {
     return new Promise((accept, reject) => {
       db.query(
         "SELECT * FROM user WHERE email = ?",
@@ -66,29 +54,30 @@ module.exports = {
             reject(error);
             return;
           }
-          
-          accept({ register: true });
+          accept({ msg: true });
         }
       );
     });
   },
   
-  update: (id, email, password) => {
+  update: (id, first_name, last_name, admin) => {
     return new Promise((accept, reject) => {
       db.query(
-        "UPDATE user SET email = ?, password = ? WHERE id = ?",
-        [email, password, id],
+        "UPDATE user SET first_name = ?, last_name = ?, admin = ? WHERE id = ?",
+        [first_name, last_name, admin, id],
         (error, results) => {
           if (error) {
+            // console.error("Error updating user:", error);
             reject(error);
             return;
           }
+          // console.log("User updated successfully");
           accept(results);
         }
       );
     });
   },
-
+  
   delete: (id) => {
     return new Promise((accept, reject) => {
       db.query("DELETE FROM user WHERE id = ?", [id], (error, results) => {
@@ -115,14 +104,13 @@ module.exports = {
           }
           if (results.length > 0) {
             let payload = { userId: results[0].id };
-            let token = jwt.sign(payload, SECRET, { expiresIn: '24h' });
-            accept({ user: results[0], token });
+            let authToken = jwt.sign(payload, SECRET, { expiresIn: '30d' });
+            accept({ user: results[0], authToken });
           } else {
             reject();
           }
         }
       );
     });
-  },
-
-};
+  }
+  }
