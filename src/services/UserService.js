@@ -112,5 +112,63 @@ module.exports = {
         }
       );
     });
-  }
+  },
+
+  getPalls: (userId) => {
+    return new Promise((accept, reject) => {
+      db.query(
+        "SELECT * FROM palls WHERE user_id = ?",
+        [userId],
+        (error, results) => {
+          if (error) {
+            // console.error("Error updating user:", error);
+            reject(error);
+            return;
+          }
+          // console.log("User updated successfully");
+          accept(results);
+        }
+      );
+    });
+  },
+
+  postPalls: (pallId, userId) => {
+    return new Promise((accept, reject) => {
+      db.query(
+        "INSERT INTO palls (`id`, `user_id`) VALUES (?, ?)",
+        [pallId, userId],
+        (error, results) => {
+          if (error) {
+            // console.error("Error updating user:", error);
+            reject('You already have that Pall in your Palldex');
+            return;
+          }
+          // console.log("User updated successfully");
+          accept(results);
+        }
+      );
+    });
+  },
+
+  deletePall: (pallId, userId) => {
+    return new Promise((accept, reject) => {
+      db.query(
+        "DELETE FROM palls WHERE id = ? AND user_id = ?;",
+        [pallId, userId],
+        (error, results) => {
+          if (error) {
+            // console.error("Error updating user:", error);
+            reject('You dont have this pall to delete!');
+            return;
+          }
+          // console.log("User updated successfully");
+          accept(results);
+        }
+      );
+    });
+  },
+  
+
+
+
   }

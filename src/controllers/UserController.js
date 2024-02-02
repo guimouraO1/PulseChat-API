@@ -3,7 +3,6 @@ const userService = require("../services/UserService");
 const bcrypt = require("bcryptjs");
 
 module.exports = {
-  
   getUserById: async (req, res) => {
     try {
       let user = await UserService.getUserById(req.userId);
@@ -126,4 +125,41 @@ module.exports = {
   auth: async (req, res) => {
     res.json({ user: req.userId });
   },
+
+  getPalls: async (req, res) => {
+    let userId = req.userId;
+    try {
+      let palls = await UserService.getPalls(userId);
+      res.json(palls);
+    } catch (error) {
+      json.error = "Pall not add to palldex";
+      res.status(500).json(json);
+    }
+  },
+
+  postPalls: async (req, res) => {
+    let userId = req.userId;
+    let pallId = req.body.pallId;
+
+    try {
+      let palls = await UserService.postPalls(pallId, userId);
+      res.json({ msg: true }); 
+    } catch (error) {
+
+      res.status(500).json({ error });
+    }
+  },
+
+  deletePall: async (req, res) => {
+    let userId = req.userId;
+    let pallId = req.body.pallId;
+
+    try {
+      await UserService.deletePall(pallId, userId);
+      res.json({ msg: true }); 
+    } catch (error) {
+      res.status(500).json({ error });
+    }
+  }
+  
 };
