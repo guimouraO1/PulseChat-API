@@ -8,11 +8,6 @@ router.post("/user", UserController.register);
 router.post("/login", UserController.login);
 router.put("/user", verifyJWT, UserController.update);
 
-router.get("/funciona", (req, res) => {
-    console.log("funciona");
-    res.send("Console log executado com sucesso!");
-});
-
 router.get("/user/palls", verifyJWT, UserController.getPalls);
 router.post("/user/palls", verifyJWT, UserController.postPalls);
 router.delete("/user/palls", verifyJWT, UserController.deletePall)
