@@ -1,18 +1,18 @@
-const express = require("express");
-const router = express.Router();
-const UserController = require("./controllers/UserController");
-const verifyJWT =  require("./middlewares/auth")
+import { Router } from "express";
+const router = Router();
+import { getUserById, register, login, update, getPalls, postPalls, deletePall } from "./controllers/UserController";
+import verifyJWT from "./middlewares/auth";
 
-router.get("/user/auth", verifyJWT, UserController.getUserById);
-router.post("/user", UserController.register);
-router.post("/login", UserController.login);
-router.put("/user", verifyJWT, UserController.update);
+router.get("/user/auth", verifyJWT, getUserById);
+router.post("/user", register);
+router.post("/login", login);
+router.put("/user", verifyJWT, update);
 
 
-router.get("/user/palls", verifyJWT, UserController.getPalls);
-router.post("/user/palls", verifyJWT, UserController.postPalls);
-router.delete("/user/palls", verifyJWT, UserController.deletePall)
+router.get("/user/palls", verifyJWT, getPalls);
+router.post("/user/palls", verifyJWT, postPalls);
+router.delete("/user/palls", verifyJWT, deletePall)
 
 // router.delete("/user/:id", UserController.delete);
 
-module.exports = router;
+export default router;
