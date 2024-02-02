@@ -1,4 +1,4 @@
-require('dotenv').config({ path: 'variaveis.env' });
+require('dotenv').config({ path: 'var.env' });
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -11,6 +11,6 @@ server.use(bodyParser.urlencoded({ extended: false }));
 
 server.use(routes);
 
-server.listen(process.env.PORT || 3000 , () => {
+server.listen(process.env.API_URL || 3000 , () => {
     console.log(`Server running on: Port ${process.env.PORT}`);
 });
