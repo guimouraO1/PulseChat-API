@@ -12,6 +12,15 @@ module.exports = {
       res.status(500).json({ error: "Internal Server Error", result: {} });
     }
   },
+  getUsers: async (req, res) => {
+    try {
+      let users = await UserService.getUsers(req.userId);
+
+      res.json(users);
+    } catch (error) {
+      res.status(500).json({ error: "Internal Server Error", result: {} });
+    }
+  },
 
   getUserByEmail: async (req, res) => {
     try {

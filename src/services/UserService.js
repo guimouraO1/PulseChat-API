@@ -22,7 +22,22 @@ module.exports = {
       );
     });
   },
-
+  getUsers: (id) => {
+    return new Promise((accept, reject) => {
+      db.query("SELECT user.id, user.email FROM user WHERE id != ?", [id], (error, results) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        if (results.length > 0) {
+          accept(results);
+        } else {
+          reject(error); 
+        }
+      });
+    });
+  },
+  
   getUserByEmail: (email) => {
     return new Promise((accept, reject) => {
       db.query(
