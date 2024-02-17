@@ -3,11 +3,10 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config({ path: "variaveis.env" });
 
 module.exports = {
-  
   getUserById: (id) => {
     return new Promise((accept, reject) => {
       db.query(
-        "SELECT user.email, user.first_name, user.last_name, IF(user.admin, 'true', 'false') AS admin FROM user WHERE id = ?",
+        "SELECT user.email FROM user WHERE id = ?",
         [id],
         (error, results) => {
           if (error) {
@@ -59,36 +58,6 @@ module.exports = {
       );
     });
   },
-  
-  update: (id, first_name, last_name, admin) => {
-    return new Promise((accept, reject) => {
-      db.query(
-        "UPDATE user SET first_name = ?, last_name = ?, admin = ? WHERE id = ?",
-        [first_name, last_name, admin, id],
-        (error, results) => {
-          if (error) {
-            // console.error("Error updating user:", error);
-            reject(error);
-            return;
-          }
-          // console.log("User updated successfully");
-          accept(results);
-        }
-      );
-    });
-  },
-  
-  delete: (id) => {
-    return new Promise((accept, reject) => {
-      db.query("DELETE FROM user WHERE id = ?", [id], (error, results) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-        accept(results);
-      });
-    });
-  },
 
   login: (email, password) => {
     const SECRET = process.env.SECRET;
@@ -104,7 +73,7 @@ module.exports = {
           }
           if (results.length > 0) {
             let payload = { userId: results[0].id };
-            let authToken = jwt.sign(payload, SECRET, { expiresIn: '30d' });
+            let authToken = jwt.sign(payload, SECRET, { expiresIn: "30d" });
             accept({ user: results[0], authToken });
           } else {
             reject();
@@ -113,62 +82,4 @@ module.exports = {
       );
     });
   },
-
-  getPalls: (userId) => {
-    return new Promise((accept, reject) => {
-      db.query(
-        "SELECT * FROM palls WHERE user_id = ?",
-        [userId],
-        (error, results) => {
-          if (error) {
-            // console.error("Error updating user:", error);
-            reject(error);
-            return;
-          }
-          // console.log("User updated successfully");
-          accept(results);
-        }
-      );
-    });
-  },
-
-  postPalls: (pallId, userId) => {
-    return new Promise((accept, reject) => {
-      db.query(
-        "INSERT INTO palls (`id`, `user_id`) VALUES (?, ?)",
-        [pallId, userId],
-        (error, results) => {
-          if (error) {
-            // console.error("Error updating user:", error);
-            reject('You already have that Pall in your Palldex');
-            return;
-          }
-          // console.log("User updated successfully");
-          accept(results);
-        }
-      );
-    });
-  },
-
-  deletePall: (pallId, userId) => {
-    return new Promise((accept, reject) => {
-      db.query(
-        "DELETE FROM palls WHERE id = ? AND user_id = ?;",
-        [pallId, userId],
-        (error, results) => {
-          if (error) {
-            // console.error("Error updating user:", error);
-            reject('You dont have this pall to delete!');
-            return;
-          }
-          // console.log("User updated successfully");
-          accept(results);
-        }
-      );
-    });
-  },
-  
-
-
-
-  }
+};

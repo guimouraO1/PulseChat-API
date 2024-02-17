@@ -22,7 +22,6 @@ module.exports = {
         res.json(user);
       }
     } catch (error) {
-      9;
       res.status(500).json({ error: "Internal Server Error", result: {} });
     }
   },
@@ -34,20 +33,20 @@ module.exports = {
       let confirmPassword = req.body.confirmPassword;
 
       if (!email) {
-        return res.status(422).json({ msg: "O email é obrigatório" });
+        return res.status(422).json({ msg: "Email is required" });
       }
       if (!password) {
-        return res.status(422).json({ msg: "O password é obrigatório" });
+        return res.status(422).json({ msg: "Password is required" });
       }
       if (password !== confirmPassword) {
-        return res.status(422).json({ msg: "As senhas não conferem" });
+        return res.status(422).json({ msg: "Passwords do not match" });
       }
 
       const userExists = await UserService.getUserByEmail(email);
       if (userExists) {
         return res
           .status(422)
-          .json({ msg: "Email já cadastrado, tente outro." });
+          .json({ msg: "Email already registered, please try another one." });
       }
 
       const salt = await bcrypt.genSalt(12);
@@ -56,60 +55,31 @@ module.exports = {
       let user = await UserService.register(email, passwordHash);
 
       res.json(user);
-    } catch (error) {}
-  },
-
-  update: async (req, res) => {
-    try {
-      let id = req.userId;
-      let first_name = req.body.first_name;
-      let last_name = req.body.last_name;
-      let admin = req.body.admin;
-
-      if (id) {
-        await UserService.update(id, first_name, last_name, admin);
-        result = {
-          update: true,
-        };
-      }
-      res.json(result);
     } catch (error) {
-      error.status(404).json({ msg: "Id not found" });
-    }
-  },
-
-  delete: async (req, res) => {
-    try {
-      await UserService.delete(req.params.id);
-
-      res.json({ userId: req.params.id, delete: true });
-    } catch (error) {
-      res.status(500).json({
-        error: "Internal Server Error",
-        result: { userId: req.params.id, delete: false },
-      });
+      // Handle error
     }
   },
 
   login: async (req, res) => {
+    
     let email = req.body.email;
     let password = req.body.password;
-
+      
     if (!email) {
-      return res.status(422).json({ msg: "O email é obrigatório" });
+      return res.status(422).json({ msg: "Email is required" });
     }
     if (!password) {
-      return res.status(422).json({ msg: "O password é obrigatório" });
+      return res.status(422).json({ msg: "Password is required" });
     }
 
     const userExists = await UserService.getUserByEmail(email);
     if (!userExists) {
-      return res.status(404).json({ msg: "Usuário não encontrado!" });
+      return res.status(404).json({ msg: "User not found!" });
     }
 
     const checkPassword = await bcrypt.compare(password, userExists.password);
     if (!checkPassword) {
-      return res.status(422).json({ msg: "Senha inválida!" });
+      return res.status(422).json({ msg: "Invalid password!" });
     }
 
     try {
@@ -125,41 +95,5 @@ module.exports = {
   auth: async (req, res) => {
     res.json({ user: req.userId });
   },
-
-  getPalls: async (req, res) => {
-    let userId = req.userId;
-    try {
-      let palls = await UserService.getPalls(userId);
-      res.json(palls);
-    } catch (error) {
-      json.error = "Pall not add to palldex";
-      res.status(500).json(json);
-    }
-  },
-
-  postPalls: async (req, res) => {
-    let userId = req.userId;
-    let pallId = req.body.pallId;
-
-    try {
-      let palls = await UserService.postPalls(pallId, userId);
-      res.json({ msg: true }); 
-    } catch (error) {
-
-      res.status(500).json({ error });
-    }
-  },
-
-  deletePall: async (req, res) => {
-    let userId = req.userId;
-    let pallId = req.body.pallId;
-
-    try {
-      await UserService.deletePall(pallId, userId);
-      res.json({ msg: true }); 
-    } catch (error) {
-      res.status(500).json({ error });
-    }
-  }
-  
+ 
 };
