@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node src/server.js",
+    "start": "nodemon src/server.js",
     "dev": "node ./src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -12,18 +12,21 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/socket.io": "^3.0.2",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "cookie-session": "^2.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "http": "^0.0.1-security",
     "jsonwebtoken": "^9.0.2",
     "mysql": "^2.18.1",
     "mysql2": "^3.6.5",
-    "sequelize": "^6.35.2"
+    "sequelize": "^6.35.2",
+    "socket.io": "^4.7.4"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "nodemon": "^3.0.3"
   }
 }

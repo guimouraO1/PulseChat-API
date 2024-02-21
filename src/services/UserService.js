@@ -3,10 +3,11 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config({ path: "variaveis.env" });
 
 module.exports = {
+  
   getUserById: (id) => {
     return new Promise((accept, reject) => {
       db.query(
-        "SELECT user.email FROM user WHERE id = ?",
+        "SELECT user.id, user.email FROM user WHERE id = ?",
         [id],
         (error, results) => {
           if (error) {
@@ -22,22 +23,27 @@ module.exports = {
       );
     });
   },
+
   getUsers: (id) => {
     return new Promise((accept, reject) => {
-      db.query("SELECT user.id, user.email FROM user WHERE id != ?", [id], (error, results) => {
-        if (error) {
-          reject(error);
-          return;
+      db.query(
+        "SELECT user.id, user.email FROM user WHERE id != ?",
+        [id],
+        (error, results) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          if (results.length > 0) {
+            accept(results);
+          } else {
+            reject(error);
+          }
         }
-        if (results.length > 0) {
-          accept(results);
-        } else {
-          reject(error); 
-        }
-      });
+      );
     });
   },
-  
+
   getUserByEmail: (email) => {
     return new Promise((accept, reject) => {
       db.query(
@@ -93,6 +99,38 @@ module.exports = {
           } else {
             reject();
           }
+        }
+      );
+    });
+  },
+
+  getMessageUser: (authorMessageId, recipientId) => {
+    return new Promise((accept, reject) => {
+      db.query(
+        "SELECT * FROM messages WHERE (authorMessageId = ? AND recipientId = ?) OR (authorMessageId = ? AND recipientId = ?) ORDER BY time ASC LIMIT 50",
+        [authorMessageId, recipientId, recipientId, authorMessageId],
+        (error, results) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          accept(results);
+        }
+      );
+    });
+},
+
+  postMessage: (authorMessageId, recipientId, time, message) => {
+    return new Promise((accept, reject) => {
+      db.query(
+        "INSERT INTO messages (authorMessageId, recipientId, time, message) VALUES (?, ?, ?, ?);",
+        [authorMessageId, recipientId, time, message],
+        (error, results) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          accept(results); // Aceita os resultados da operação de inserção
         }
       );
     });

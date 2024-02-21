@@ -1,5 +1,4 @@
 const UserService = require("../services/UserService");
-const userService = require("../services/UserService");
 const bcrypt = require("bcryptjs");
 
 module.exports = {
@@ -12,6 +11,7 @@ module.exports = {
       res.status(500).json({ error: "Internal Server Error", result: {} });
     }
   },
+  
   getUsers: async (req, res) => {
     try {
       let users = await UserService.getUsers(req.userId);
@@ -70,10 +70,9 @@ module.exports = {
   },
 
   login: async (req, res) => {
-    
     let email = req.body.email;
     let password = req.body.password;
-      
+
     if (!email) {
       return res.status(422).json({ msg: "Email is required" });
     }
@@ -104,5 +103,44 @@ module.exports = {
   auth: async (req, res) => {
     res.json({ user: req.userId });
   },
- 
+
+  getMessageUser: async (req, res) => {
+    try {
+      let authorMessageId = req.userId;
+      let recipientId = req.body.recipientId;
+      // let time = req.body.time;
+      // let message = req.body.message;
+
+      let messagesRes = await UserService.getMessageUser(
+        authorMessageId,
+        recipientId
+      );
+
+      if (messagesRes) {
+        res.json(messagesRes);
+      }
+    } catch (error) {
+      res.status(500).json({});
+    }
+  },
+
+  postMessage: async (req, res) => {
+    try {
+      let authorMessageId = req.userId;
+      let recipientId = req.body.recipientId;
+      let time = req.body.time;
+      let message = req.body.message;
+
+      await UserService.postMessage(
+        authorMessageId,
+        recipientId,
+        time,
+        message
+      );
+
+      res.json({msg: "Message has been sended"});
+    } catch (error) {
+      res.status(500).json({});
+    }
+  },
 };
