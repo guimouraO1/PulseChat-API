@@ -20,33 +20,25 @@ module.exports = function (server) {
     socket.on("message", (user) => {
       const { message, authorMessageId, recipientId, time } = user;
 
-      if (userSocketMap.has(recipientId)) {
-        const authorMessageSocketId = userSocketMap.get(authorMessageId);
-        const recipientSocketId = userSocketMap.get(recipientId);
+      const authorMessageSocketId = userSocketMap.get(authorMessageId);
+      const recipientSocketId = userSocketMap.get(recipientId);
 
-        try {
-          io.to(authorMessageSocketId).emit("private-message", {
-            message,
-            authorMessageId,
-            recipientId,
-            time,
-          });
+      try {
+        io.to(authorMessageSocketId).emit("private-message", {
+          message,
+          authorMessageId,
+          recipientId,
+          time,
+        });
 
-          io.to(recipientSocketId).emit("private-message", {
-            message,
-            authorMessageId,
-            recipientId,
-            time,
-          });
-          
-        } catch (error) {
-          console.error("Erro ao postar mensagem:", error);
-        }
-      } else {
-        console.log(
-          "Usuário não encontrado no mapa de usuários.",
-          `ID: ${recipientId}`
-        );
+        io.to(recipientSocketId).emit("private-message", {
+          message,
+          authorMessageId,
+          recipientId,
+          time,
+        });
+      } catch (error) {
+        console.error("Erro ao postar mensagem:", error);
       }
     });
 
