@@ -118,7 +118,7 @@ module.exports = {
         }
       );
     });
-},
+  },
 
   postMessage: (authorMessageId, recipientId, time, message) => {
     return new Promise((accept, reject) => {

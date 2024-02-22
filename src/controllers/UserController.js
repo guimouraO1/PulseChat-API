@@ -2,6 +2,7 @@ const UserService = require("../services/UserService");
 const bcrypt = require("bcryptjs");
 
 module.exports = {
+  
   getUserById: async (req, res) => {
     try {
       let user = await UserService.getUserById(req.userId);
