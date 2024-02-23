@@ -1,4 +1,5 @@
 const socketio = require("socket.io");
+const UserController = require("./controllers/UserController");
 
 module.exports = function (server) {
   const io = new socketio.Server(server, {
@@ -17,8 +18,15 @@ module.exports = function (server) {
     });
 
     // Evento para lidar com o login do usuário e enviar informações adicionais
-    socket.on("message", (user) => {
+    socket.on("message", async (user) => {
       const { message, authorMessageId, recipientId, time } = user;
+      
+      await UserController.postMessage(
+        authorMessageId,
+        recipientId,
+        time,
+        message
+      );
 
       const authorMessageSocketId = userSocketMap.get(authorMessageId);
       const recipientSocketId = userSocketMap.get(recipientId);

@@ -113,10 +113,7 @@ module.exports = {
   getMessageUser: async (req, res) => {
     try {
       let authorMessageId = req.userId;
-      let recipientId = req.body.recipientId;
-      // let time = req.body.time;
-      // let message = req.body.message;
-
+      let recipientId = req.query.recipientId;
       let messagesRes = await UserService.getMessageUser(
         authorMessageId,
         recipientId
@@ -130,13 +127,8 @@ module.exports = {
     }
   },
 
-  postMessage: async (req, res) => {
+  postMessage: async (authorMessageId, recipientId, time, message) => {
     try {
-      let authorMessageId = req.userId;
-      let recipientId = req.body.recipientId;
-      let time = req.body.time;
-      let message = req.body.message;
-
       await UserService.postMessage(
         authorMessageId,
         recipientId,
@@ -144,9 +136,9 @@ module.exports = {
         message
       );
 
-      res.json({msg: "Message has been sended"});
+      return {msg: "Message has been sent"};
     } catch (error) {
-      res.status(500).json({});
+      throw new Error("Error sending message");
     }
-  },
+  }
 };
