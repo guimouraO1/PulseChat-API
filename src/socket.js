@@ -17,10 +17,9 @@ module.exports = function (server) {
       io.to(socket.id).emit("connected", true);
     });
 
-    // Evento para lidar com o login do usuário e enviar informações adicionais
     socket.on("message", async (user) => {
       const { message, authorMessageId, recipientId, time } = user;
-      
+
       await UserController.postMessage(
         authorMessageId,
         recipientId,
@@ -45,6 +44,7 @@ module.exports = function (server) {
           recipientId,
           time,
         });
+        
       } catch (error) {
         console.error("Erro ao postar mensagem:", error);
       }

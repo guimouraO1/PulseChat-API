@@ -107,7 +107,7 @@ module.exports = {
   getMessageUser: (authorMessageId, recipientId) => {
     return new Promise((accept, reject) => {
       db.query(
-        "SELECT * FROM messages WHERE (authorMessageId = ? AND recipientId = ?) OR (authorMessageId = ? AND recipientId = ?) ORDER BY time ASC LIMIT 50",
+        "SELECT * FROM messages WHERE (authorMessageId = ? AND recipientId = ?) OR (authorMessageId = ? AND recipientId = ?) ORDER BY time DESC LIMIT 15",
         [authorMessageId, recipientId, recipientId, authorMessageId],
         (error, results) => {
           if (error) {
