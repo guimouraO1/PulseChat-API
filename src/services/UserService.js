@@ -64,11 +64,11 @@ module.exports = {
     });
   },
 
-  register: (email, password) => {
+  register: (email, password, userId) => {
     return new Promise((accept, reject) => {
       db.query(
-        "INSERT INTO `user` (`email`, `password`) VALUES (?, ?)",
-        [email, password],
+        "INSERT INTO `user` (`id`, `email`, `password`) VALUES (?, ?, ?)",
+        [userId, email, password],
         (error, results) => {
           if (error) {
             reject(error);

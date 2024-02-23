@@ -1,5 +1,6 @@
 const UserService = require("../services/UserService");
 const bcrypt = require("bcryptjs");
+const { v4: uuidv4 } = require('uuid');
 
 module.exports = {
   
@@ -41,7 +42,7 @@ module.exports = {
       let email = req.body.email;
       let password = req.body.password;
       let confirmPassword = req.body.confirmPassword;
-
+  
       if (!email) {
         return res.status(422).json({ msg: "Email is required" });
       }
@@ -51,22 +52,26 @@ module.exports = {
       if (password !== confirmPassword) {
         return res.status(422).json({ msg: "Passwords do not match" });
       }
-
+  
       const userExists = await UserService.getUserByEmail(email);
       if (userExists) {
         return res
           .status(422)
           .json({ msg: "Email already registered, please try another one." });
       }
-
+  
       const salt = await bcrypt.genSalt(12);
       const passwordHash = await bcrypt.hash(password, salt);
-
-      let user = await UserService.register(email, passwordHash);
-
+  
+      // Generate UUID for user ID
+      const userId = uuidv4();
+      let user = await UserService.register(email, passwordHash, userId);
+  
       res.json(user);
     } catch (error) {
       // Handle error
+      console.error(error);
+      res.status(500).json({ msg: "Internal Server Error" });
     }
   },
 
