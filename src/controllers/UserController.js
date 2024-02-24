@@ -1,9 +1,8 @@
 const UserService = require("../services/UserService");
 const bcrypt = require("bcryptjs");
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require("uuid");
 
 module.exports = {
-  
   getUserById: async (req, res) => {
     try {
       let user = await UserService.getUserById(req.userId);
@@ -13,7 +12,7 @@ module.exports = {
       res.status(500).json({ error: "Internal Server Error", result: {} });
     }
   },
-  
+
   getUsers: async (req, res) => {
     try {
       let users = await UserService.getUsers(req.userId);
@@ -42,7 +41,7 @@ module.exports = {
       let email = req.body.email;
       let password = req.body.password;
       let confirmPassword = req.body.confirmPassword;
-  
+
       if (!email) {
         return res.status(422).json({ msg: "Email is required" });
       }
@@ -52,21 +51,21 @@ module.exports = {
       if (password !== confirmPassword) {
         return res.status(422).json({ msg: "Passwords do not match" });
       }
-  
+
       const userExists = await UserService.getUserByEmail(email);
       if (userExists) {
         return res
           .status(422)
           .json({ msg: "Email already registered, please try another one." });
       }
-  
+
       const salt = await bcrypt.genSalt(12);
       const passwordHash = await bcrypt.hash(password, salt);
-  
+
       // Generate UUID for user ID
       const userId = uuidv4();
       let user = await UserService.register(email, passwordHash, userId);
-  
+
       res.json(user);
     } catch (error) {
       // Handle error
@@ -112,18 +111,26 @@ module.exports = {
 
   getMessageUser: async (req, res) => {
     try {
-      let authorMessageId = req.userId;
-      let recipientId = req.query.recipientId;
-      let messagesRes = await UserService.getMessageUser(
+      const authorMessageId = req.userId;
+      const recipientId = req.query.recipientId;
+      const offset = parseInt(req.query.offset) || 0;
+      const limit = parseInt(req.query.limit) || 10;
+
+      const messagesRes = await UserService.getMessageUser(
         authorMessageId,
-        recipientId
+        recipientId,
+        offset,
+        limit
       );
 
       if (messagesRes) {
         res.json(messagesRes);
+      } else {
+        res.status(404).json({ error: "Mensagens não encontradas" });
       }
     } catch (error) {
-      res.status(500).json({});
+      console.error("Erro ao buscar mensagens do usuário:", error);
+      res.status(500).json({ error: "Erro interno do servidor" });
     }
   },
 
@@ -136,9 +143,9 @@ module.exports = {
         message
       );
 
-      return {msg: "Message has been sent"};
+      return { msg: "Message has been sent" };
     } catch (error) {
       throw new Error("Error sending message");
     }
-  }
+  },
 };

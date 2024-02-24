@@ -104,11 +104,11 @@ module.exports = {
     });
   },
 
-  getMessageUser: (authorMessageId, recipientId) => {
+  getMessageUser: (authorMessageId, recipientId, offset, limit) => {
     return new Promise((accept, reject) => {
       db.query(
-        "SELECT * FROM messages WHERE (authorMessageId = ? AND recipientId = ?) OR (authorMessageId = ? AND recipientId = ?) ORDER BY time DESC LIMIT 15",
-        [authorMessageId, recipientId, recipientId, authorMessageId],
+        "SELECT * FROM messages WHERE (authorMessageId = ? AND recipientId = ?) OR (authorMessageId = ? AND recipientId = ?) ORDER BY time DESC LIMIT ?, ?",
+        [authorMessageId, recipientId, recipientId, authorMessageId, offset, limit],
         (error, results) => {
           if (error) {
             reject(error);
