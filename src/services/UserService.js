@@ -7,7 +7,7 @@ module.exports = {
   getUserById: (id) => {
     return new Promise((accept, reject) => {
       db.query(
-        "SELECT user.id, user.email FROM user WHERE id = ?",
+        "SELECT user.id, user.email, user.name FROM user WHERE id = ?",
         [id],
         (error, results) => {
           if (error) {
@@ -27,7 +27,7 @@ module.exports = {
   getUsers: (id) => {
     return new Promise((accept, reject) => {
       db.query(
-        "SELECT user.id, user.email FROM user WHERE id != ?",
+        "SELECT user.id, user.email, user.name FROM user WHERE id != ?",
         [id],
         (error, results) => {
           if (error) {
@@ -64,11 +64,11 @@ module.exports = {
     });
   },
 
-  register: (email, password, userId) => {
+  register: (email, password, userId, name) => {
     return new Promise((accept, reject) => {
       db.query(
-        "INSERT INTO `user` (`id`, `email`, `password`) VALUES (?, ?, ?)",
-        [userId, email, password],
+        "INSERT INTO `user` (`id`, `email`, `password`, `name`) VALUES (?, ?, ?, ?)",
+        [userId, email, password, name],
         (error, results) => {
           if (error) {
             reject(error);

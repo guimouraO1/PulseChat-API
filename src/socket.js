@@ -15,11 +15,11 @@ module.exports = function (server) {
     socket.on("connection_user", (user) => {
       userSocketMap.set(user.id, socket.id);
       io.to(socket.id).emit("connected", true);
+      // console.log(socket.id);
     });
 
     socket.on("message", async (user) => {
       const { message, authorMessageId, recipientId, time } = user;
-
       await UserController.postMessage(
         authorMessageId,
         recipientId,
@@ -36,6 +36,7 @@ module.exports = function (server) {
           authorMessageId,
           recipientId,
           time,
+          read: true
         });
 
         io.to(recipientSocketId).emit("private-message", {
@@ -43,6 +44,7 @@ module.exports = function (server) {
           authorMessageId,
           recipientId,
           time,
+          read: false
         });
         
       } catch (error) {

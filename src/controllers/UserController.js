@@ -41,6 +41,7 @@ module.exports = {
       let email = req.body.email;
       let password = req.body.password;
       let confirmPassword = req.body.confirmPassword;
+      let name = req.body.name;
 
       if (!email) {
         return res.status(422).json({ msg: "Email is required" });
@@ -64,7 +65,7 @@ module.exports = {
 
       // Generate UUID for user ID
       const userId = uuidv4();
-      let user = await UserService.register(email, passwordHash, userId);
+      let user = await UserService.register(email, passwordHash, userId, name);
 
       res.json(user);
     } catch (error) {
