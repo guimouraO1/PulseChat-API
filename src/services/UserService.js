@@ -139,7 +139,7 @@ module.exports = {
   updateMessageAsRead: (authorMessageId, recipientId) => {
     return new Promise((accept, reject) => {
       db.query(
-        "UPDATE messages SET `read` = ? WHERE (authorMessageId = ? AND recipientId = ? AND `read` = 'false') OR (authorMessageId = ? AND recipientId = ? AND `read` = 'false');",
+        "UPDATE messages SET `read` = ? WHERE (authorMessageId = ? AND recipientId = ? AND `read` = 'false');",
         ['true', authorMessageId, recipientId, recipientId, authorMessageId],
         (error, results) => {
           if (error) {
