@@ -120,11 +120,11 @@ module.exports = {
     });
   },
 
-  postMessage: (authorMessageId, recipientId, time, message) => {
+  postMessage: (authorMessageId, recipientId, time, message, messageId) => {
     return new Promise((accept, reject) => {
       db.query(
-        "INSERT INTO messages (authorMessageId, recipientId, time, message) VALUES (?, ?, ?, ?);",
-        [authorMessageId, recipientId, time, message],
+        "INSERT INTO messages (authorMessageId, recipientId, time, message, id) VALUES (?, ?, ?, ?, ?);",
+        [authorMessageId, recipientId, time, message, messageId],
         (error, results) => {
           if (error) {
             reject(error);
@@ -135,4 +135,23 @@ module.exports = {
       );
     });
   },
+
+  updateMessageAsRead: (authorMessageId, recipientId) => {
+    console.log(authorMessageId, recipientId);
+    return new Promise((accept, reject) => {
+      db.query(
+        "UPDATE messages SET `read` = ? WHERE authorMessageId = ? AND recipientId = ? OR authorMessageId = ? AND recipientId = ?;",
+        ['true', authorMessageId, recipientId, recipientId, authorMessageId],
+        (error, results) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          accept(results);
+        }
+      );
+    });
+  },
+  
+
 };

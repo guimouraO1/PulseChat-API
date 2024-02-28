@@ -9,5 +9,7 @@ router.post("/user", UserController.register);
 router.post("/login", UserController.login);
 
 router.get('/messages', verifyJWT, UserController.getMessageUser);
+router.put('/messages', UserController.updateMessageAsRead);
+
 
 module.exports = router;

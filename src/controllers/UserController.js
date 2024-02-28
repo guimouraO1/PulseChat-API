@@ -137,16 +137,40 @@ module.exports = {
 
   postMessage: async (authorMessageId, recipientId, time, message) => {
     try {
+      let messageId = uuidv4();
+
       await UserService.postMessage(
         authorMessageId,
         recipientId,
         time,
-        message
+        message,
+        messageId
       );
 
       return { msg: "Message has been sent" };
     } catch (error) {
       throw new Error("Error sending message");
+    }
+  },
+
+  updateMessageAsRead: async (req, res) => {
+    try {
+      const authorMessageId = req.body.authorMessageId;
+      const recipientId = req.body.recipientId;
+      // console.log(authorMessageId, recipientId);
+
+      const messagesRes = await UserService.updateMessageAsRead(
+        authorMessageId,
+        recipientId
+      );
+
+      if (messagesRes) {
+        res.json(messagesRes);
+      } else {
+        res.status(404).json({ error: "Message not updated!" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Erro interno do servidor" });
     }
   },
 };
