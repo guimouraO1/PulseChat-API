@@ -8,14 +8,19 @@ module.exports = function (server) {
     },
   });
 
-  const userSocketMap = new Map();
+  const connectedUsers = new Map();
+  const connected = new Set();
 
   io.on("connection", (socket) => {
+    // io.emit("connectedUsers", JSON.stringify(Array.from(connected)));
+   
     // connection do user para mapear seu ID com SOCKET.ID
-    socket.on("connection_user", (user) => {
-      userSocketMap.set(user.id, socket.id);
-      io.to(socket.id).emit("connected", true);
-      // console.log(socket.id);
+    socket.on("userJoin", (user) => {
+      if (user) {
+        connectedUsers.set(user.id, socket.id);
+        connected.add(user.id);
+        io.emit("connectedUsers", JSON.stringify(Array.from(connected)));
+      }
     });
 
     socket.on("message", async (user) => {
@@ -27,8 +32,8 @@ module.exports = function (server) {
         message
       );
 
-      const authorMessageSocketId = userSocketMap.get(authorMessageId);
-      const recipientSocketId = userSocketMap.get(recipientId);
+      const authorMessageSocketId = connectedUsers.get(authorMessageId);
+      const recipientSocketId = connectedUsers.get(recipientId);
 
       try {
         io.to(authorMessageSocketId).emit("private-message", {
@@ -53,12 +58,12 @@ module.exports = function (server) {
     });
 
     socket.on("disconnect", () => {
-      // console.log(`Usuário desconectado: ${socket.id}`);
-      io.to(socket.id).emit("connected", false);
-      // Remova o usuário desconectado do mapa de usuários
-      userSocketMap.forEach((value, key) => {
+      connectedUsers.forEach((value, key) => {
         if (value === socket.id) {
-          userSocketMap.delete(key);
+          connected.delete(key);
+          connectedUsers.delete(key);
+          // Aqui você deve emitir a lista de usuários conectados como um JSON
+          io.emit("connectedUsers", JSON.stringify(Array.from(connected)));
         }
       });
     });
