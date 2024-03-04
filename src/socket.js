@@ -12,20 +12,18 @@ module.exports = function (server) {
   const connected = new Set();
 
   io.on("connection", (socket) => {
-    // io.emit("connectedUsers", JSON.stringify(Array.from(connected)));
-   
-    // connection do user para mapear seu ID com SOCKET.ID
-    socket.on("userJoin", (user) => {
-      if (user) {
-        connectedUsers.set(user.id, socket.id);
-        connected.add(user.id);
-        io.emit("connectedUsers", JSON.stringify(Array.from(connected)));
-      }
-    });
+    try{
+      const userInfo = JSON.parse(socket.handshake.query.user);
+      connectedUsers.set(userInfo.id, socket.id);
+      connected.add(userInfo.id);
+      io.emit("connectedUsers", JSON.stringify(Array.from(connected)));
+    } catch{
+      console.log('error')
+    }
 
-    socket.on("message", async (user) => {
+    socket.on("message", (user) => {
       const { message, authorMessageId, recipientId, time } = user;
-      await UserController.postMessage(
+      UserController.postMessage(
         authorMessageId,
         recipientId,
         time,
@@ -62,7 +60,6 @@ module.exports = function (server) {
         if (value === socket.id) {
           connected.delete(key);
           connectedUsers.delete(key);
-          // Aqui você deve emitir a lista de usuários conectados como um JSON
           io.emit("connectedUsers", JSON.stringify(Array.from(connected)));
         }
       });

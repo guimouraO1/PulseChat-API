@@ -12,7 +12,6 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static(path.resolve(__dirname, "..", "public")));
 app.use(routes);
 
 // Create HTTP server
@@ -25,7 +24,7 @@ module.exports = {
   start: function () {
     const PORT = process.env.PORT || 3000;
     server.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+      console.log(`🚀 Server running on Port: ${PORT}`);
     });
   },
   close: function () {

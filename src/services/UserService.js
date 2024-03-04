@@ -85,7 +85,7 @@ module.exports = {
 
     return new Promise((accept, reject) => {
       db.query(
-        "SELECT user.id, user.email FROM user WHERE email = ? AND password = ?",
+        "SELECT user.id, user.email, user.name FROM user WHERE email = ? AND password = ?",
         [email, password],
         (error, results) => {
           if (error) {
@@ -151,5 +151,20 @@ module.exports = {
       );
     });
   },
-  
+
+  getFriends: (user) => {
+    return new Promise((accept, reject) => {
+      db.query(
+        "SELECT * FROM `friends` WHERE `user1Id` = ? AND status = 'Accepted' OR `user2Id` = ? AND status = 'Accepted'",
+        [user, user],
+        (error, results) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          accept(results);
+        }
+      );
+    });
+  },
 };

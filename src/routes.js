@@ -12,5 +12,6 @@ router.post("/login", UserController.login);
 router.get('/messages', verifyJWT, UserController.getMessageUser);
 router.put('/messages', UserController.updateMessageAsRead);
 
+router.get('/friends', verifyJWT, UserController.getFriends);
 
 module.exports = router;

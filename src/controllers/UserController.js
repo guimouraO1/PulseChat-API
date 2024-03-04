@@ -173,4 +173,14 @@ module.exports = {
       res.status(500).json({ error: "Erro interno do servidor" });
     }
   },
+
+  getFriends: async (req, res) => {
+    try {
+      let friends = await UserService.getFriends(req.userId);
+
+      res.json(friends);
+    } catch (error) {
+      throw new Error("Error sending message");
+    }
+  },
 };
