@@ -3,7 +3,6 @@ const express = require("express");
 const http = require("http");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const path = require("path");
 const routes = require("./routes");
 const setupSocket = require("./socket");
 

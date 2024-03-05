@@ -12,34 +12,28 @@ module.exports = function (server) {
   const connected = new Set();
 
   io.on("connection", (socket) => {
-    try{
+    try {
       const userInfo = JSON.parse(socket.handshake.query.user);
       connectedUsers.set(userInfo.id, socket.id);
       connected.add(userInfo.id);
       io.emit("connectedUsers", JSON.stringify(Array.from(connected)));
-    } catch{
-      console.log('error')
+    } catch {
     }
 
-    socket.on("message", (user) => {
-      const { message, authorMessageId, recipientId, time } = user;
-      UserController.postMessage(
-        authorMessageId,
-        recipientId,
-        time,
-        message
-      );
-
-      const authorMessageSocketId = connectedUsers.get(authorMessageId);
-      const recipientSocketId = connectedUsers.get(recipientId);
-
+    socket.on("message", (messageData) => {
       try {
+        const { message, authorMessageId, recipientId, time } = messageData;
+        UserController.postMessage(authorMessageId, recipientId, time, message);
+  
+        const authorMessageSocketId = connectedUsers.get(authorMessageId);
+        const recipientSocketId = connectedUsers.get(recipientId);
+
         io.to(authorMessageSocketId).emit("private-message", {
           message,
           authorMessageId,
           recipientId,
           time,
-          read: true
+          read: true,
         });
 
         io.to(recipientSocketId).emit("private-message", {
@@ -47,11 +41,10 @@ module.exports = function (server) {
           authorMessageId,
           recipientId,
           time,
-          read: false
+          read: false,
         });
-        
       } catch (error) {
-        console.error("Erro ao postar mensagem:", error);
+        console.error("Error posting message:", error);
       }
     });
 

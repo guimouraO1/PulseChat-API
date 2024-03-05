@@ -1,6 +1,6 @@
 const db = require("../db");
 const jwt = require("jsonwebtoken");
-require("dotenv").config({ path: "variaveis.env" });
+require("dotenv").config();
 
 module.exports = {
   
@@ -152,11 +152,11 @@ module.exports = {
     });
   },
 
-  getFriends: (user) => {
+  getFriends: (userId) => {
     return new Promise((accept, reject) => {
       db.query(
-        "SELECT * FROM `friends` WHERE `user1Id` = ? AND status = 'Accepted' OR `user2Id` = ? AND status = 'Accepted'",
-        [user, user],
+        "SELECT friends.status, CASE WHEN friends.user1Id = ? THEN user2.id ELSE user1.id END AS friendId, CASE WHEN friends.user1Id = ? THEN user2.name ELSE user1.name END AS friendName FROM friends INNER JOIN user AS user1 ON friends.user1Id = user1.id INNER JOIN user AS user2 ON friends.user2Id = user2.id WHERE friends.status = 'Accepted' AND (friends.user1Id = ? OR friends.user2Id = ?)",
+        [userId, userId, userId, userId],
         (error, results) => {
           if (error) {
             reject(error);
@@ -167,4 +167,6 @@ module.exports = {
       );
     });
   },
+  
+  
 };
